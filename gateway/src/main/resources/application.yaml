@@ -10,6 +10,21 @@ spring:
         webflux:
           routes:
             - id: sealed-service
-              uri: http://localhost:8081
+              uri: ${services.sealed-uri}
               predicates:
                 - Path=/api/sealeds/**
+            - id: auth-service
+              uri: ${services.auth-uri}
+              predicates:
+                - Path=/api/auth/**, /.well-known/jwks.json
+
+services:
+  sealed-uri: http://localhost:8081
+  auth-uri: http://localhost:8082
+
+auth:
+  jwk-set-uri: ${services.auth-uri}/.well-known/jwks.json
+  issuer: sealed-auth
+  # 토큰 없이 통과하는 경로 (BE-GW-03). 로그인/콜백, 공개 링크, 웹훅은 해당 기능을 만들 때 추가한다.
+  public-paths:
+    - /.well-known/jwks.json
